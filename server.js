@@ -29,10 +29,15 @@ app.get('/api/movies', (req, res)=>{
     })
 })
 
-app.get('api/movies/:id', (req,res)=>{
-    const sql= 'SELECT * FROM movie.movies WHERE movie.movies.id = ?'
+app.get('/api/movies/:id', (req,res)=>{
+    const sql= 'SELECT * FROM movie.movies JOIN movie.reviews ON movies.id = reviews.movie_id WHERE movies.id = ? AND reviews.movie_id = ?'
     const movieId = Number(req.params.id)
-    connection.query(sql, [movieId], (err,results)=>{
+    const reviewId = Number(req.params.movie_id)
+
+    console.log(movieId);
+    console.log(reviewId);
+
+    connection.query(sql, [movieId], [reviewId], (err,results)=>{
         console.log(results);
         
         if(err){
@@ -42,7 +47,7 @@ app.get('api/movies/:id', (req,res)=>{
         console.log('Errore:', err);
         console.log('Risultati:', results);
         
-        const thisMovie = {...results[0], review: []}
+        const thisMovie = {...results[0]}
         console.log(thisMovie);
         
         res.json({thisMovie});
