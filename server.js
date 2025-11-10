@@ -21,9 +21,30 @@ app.get('/',(req,res)=>{
 app.get('/api/movies', (req, res)=>{
     const sql = 'SELECT * FROM movie.movies'
     connection.query(sql, (err, results) =>{
+        if(err) return err.status(500).json({error: err.message})
         console.log('Errore:', err);
         console.log('Risultati:', results);
         
         res.json({movies:results})
+    })
+})
+
+app.get('api/movies/:id', (req,res)=>{
+    const sql= 'SELECT * FROM movie.movies WHERE movie.movies.id = ?'
+    const movieId = Number(req.params.id)
+    connection.query(sql, [movieId], (err,results)=>{
+        console.log(results);
+        
+        if(err){
+            return err.status(500).json({error: err.message})
+        }
+        if(results.length === 0) return res.status(404).json({message: 'non ho trovato il libro' })
+        console.log('Errore:', err);
+        console.log('Risultati:', results);
+        
+        const thisMovie = {...results[0], review: []}
+        console.log(thisMovie);
+        
+        res.json({thisMovie});
     })
 })
