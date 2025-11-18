@@ -1,8 +1,10 @@
 //creo il server
 const express = require("express");
 const app = express();
+const moviesRouter = require("./routes/movies") //c'è l'oggetto router che abbiamo esportato dal file movies
 const PORT = process.env.PORT || 3000;
-const connection = require('./database/connection')
+
+
 
 // server in ascolto
 app.listen(PORT, ()=>{
@@ -17,39 +19,4 @@ app.get('/',(req,res)=>{
     
 })
 
-//creo la seconda rotta e facciamo una prima query
-app.get('/api/movies', (req, res)=>{
-    const sql = 'SELECT * FROM movie.movies'
-    connection.query(sql, (err, results) =>{
-        if(err) return err.status(500).json({error: err.message})
-        console.log('Errore:', err);
-        console.log('Risultati:', results);
-        
-        res.json({movies:results})
-    })
-})
-
-app.get('/api/movies/:id', (req,res)=>{
-    const sql= 'SELECT * FROM movie.movies JOIN movie.reviews ON movies.id = reviews.movie_id WHERE movies.id = ? AND reviews.movie_id = ?'
-    const movieId = Number(req.params.id)
-    const reviewId = Number(req.params.movie_id)
-
-    console.log(movieId);
-    console.log(reviewId);
-
-    connection.query(sql, [movieId], [reviewId], (err,results)=>{
-        console.log(results);
-        
-        if(err){
-            return err.status(500).json({error: err.message})
-        }
-        if(results.length === 0) return res.status(404).json({message: 'non ho trovato il libro' })
-        console.log('Errore:', err);
-        console.log('Risultati:', results);
-        
-        const thisMovie = {...results[0]}
-        console.log(thisMovie);
-        
-        res.json({thisMovie});
-    })
-})
+app.use('/api/movies', moviesRouter)
